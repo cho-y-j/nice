@@ -1,0 +1,14 @@
+version: "3.8"
+services:
+  gateway:
+    build: .
+    ports:
+      - "3100:3100"
+    env_file:
+      - .env
+    volumes:
+      - gateway-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  gateway-data:
