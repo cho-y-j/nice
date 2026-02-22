@@ -12,7 +12,7 @@ export const prepareSchema = {
       goodsName: { type: 'string', maxLength: 40, description: '상품명' },
       method: {
         type: 'string',
-        enum: ['card', 'bank', 'vbank', 'cellphone', 'naverpay', 'kakaopay', 'samsungpay', 'cardAndEasyPay'],
+        enum: ['card', 'directCard', 'bank', 'vbank', 'cellphone', 'naverpay', 'kakaopay', 'samsungpay', 'cardAndEasyPay'],
         description: '결제수단',
       },
       returnUrl: { type: 'string', format: 'uri', description: '게이트웨이 approve 엔드포인트 URL' },
