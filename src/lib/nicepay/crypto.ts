@@ -83,22 +83,46 @@ function safeCompare(a: string, b: string): boolean {
 // ============================================================
 
 /**
- * AES-256-ECB encryption for billing encData
- * NicePay requires: AES/ECB/PKCS5Padding with hex-encoded secretKey as key
+ * AES-128-ECB encryption for billing encData (기본 모드)
+ * NicePay: AES/ECB/PKCS5Padding, Hex encoding, key = secretKey 앞 16자리
+ */
+export function encryptCardDataAES128(
+  cardNo: string, expYear: string, expMonth: string,
+  idNo: string, cardPw: string, secretKey: string,
+): string {
+  const plainText = `cardNo=${cardNo}&expYear=${expYear}&expMonth=${expMonth}&idNo=${idNo}&cardPw=${cardPw}`;
+  const key = Buffer.from(secretKey.slice(0, 16), 'utf8');
+  const cipher = createCipheriv('aes-128-ecb', key, null);
+  cipher.setAutoPadding(true);
+  let encrypted = cipher.update(plainText, 'utf8', 'hex');
+  encrypted += cipher.final('hex');
+  return encrypted;
+}
+
+/**
+ * AES-256-CBC encryption for billing encData (강화 모드, encMode=A2)
+ * NicePay: AES/CBC/PKCS5Padding, Hex encoding, key = secretKey 32byte, IV = secretKey 앞 16자리
+ */
+export function encryptCardDataAES256(
+  cardNo: string, expYear: string, expMonth: string,
+  idNo: string, cardPw: string, secretKey: string,
+): string {
+  const plainText = `cardNo=${cardNo}&expYear=${expYear}&expMonth=${expMonth}&idNo=${idNo}&cardPw=${cardPw}`;
+  const key = Buffer.from(secretKey.slice(0, 32), 'utf8');
+  const iv = Buffer.from(secretKey.slice(0, 16), 'utf8');
+  const cipher = createCipheriv('aes-256-cbc', key, iv);
+  cipher.setAutoPadding(true);
+  let encrypted = cipher.update(plainText, 'utf8', 'hex');
+  encrypted += cipher.final('hex');
+  return encrypted;
+}
+
+/**
+ * Default: AES-128-ECB (NicePay 기본 모드)
  */
 export function encryptCardData(
   cardNo: string, expYear: string, expMonth: string,
   idNo: string, cardPw: string, secretKey: string,
 ): string {
-  const plainText = `cardNo=${cardNo}&expYear=${expYear}&expMonth=${expMonth}&idNo=${idNo}&cardPw=${cardPw}`;
-
-  // NicePay uses first 32 bytes of secretKey as AES-256 key
-  const key = Buffer.from(secretKey.padEnd(32, '0').slice(0, 32), 'utf8');
-  const cipher = createCipheriv('aes-256-ecb', key, null);
-  cipher.setAutoPadding(true);
-
-  let encrypted = cipher.update(plainText, 'utf8', 'hex');
-  encrypted += cipher.final('hex');
-
-  return encrypted;
+  return encryptCardDataAES128(cardNo, expYear, expMonth, idNo, cardPw, secretKey);
 }

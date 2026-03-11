@@ -61,7 +61,6 @@ export class BillingService {
     const result = await this.nicepay.billingRegister({
       encData,
       orderId: params.orderId,
-      encMode: 'A2', // AES-256
       ediDate,
       signData,
       buyerName: params.buyerName,

@@ -117,7 +117,7 @@ export interface NetCancelRequest {
 export interface BillingRegisterRequest {
   encData: string;
   orderId: string;
-  encMode: string;
+  encMode?: string;
   ediDate: string;
   signData: string;
   buyerName?: string;
